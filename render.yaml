@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: solar-predictor
+    runtime: node
+    repo: https://github.com/tamanna2311/Solar-Predictor
+    branch: main
+    plan: free
+    region: singapore
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start
+    healthCheckPath: /api/v1/health
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_VERSION
+        value: 24.14.1
