@@ -45,7 +45,7 @@ test("serves health, metadata, OpenAPI, Swagger, and ReDoc endpoints", async () 
       headers: {
         host: "solar-predictor-ft87.onrender.com",
         "x-forwarded-host": "solar-predictor-ft87.onrender.com",
-        "x-forwarded-proto": "https",
+        "x-forwarded-proto": "http",
       },
     }),
     { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } },
