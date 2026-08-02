@@ -42,7 +42,7 @@ const HORIZONS: Array<{ id: Horizon; label: string; hint: string }> = [
 ];
 
 const EMPTY_OVERVIEW: SolarOverview = {
-  generatedAt: new Date().toISOString(),
+  generatedAt: "2026-08-02T00:00:00.000Z",
   source: "demo-fallback",
   site: {
     id: "surya-one",
@@ -76,7 +76,7 @@ const EMPTY_OVERVIEW: SolarOverview = {
   model: {
     name: "Hybrid PV v1",
     version: "1.0.0-demo",
-    lastTrainedAt: new Date().toISOString(),
+    lastTrainedAt: "2026-07-26T03:30:00.000Z",
     validationNmae: 0,
   },
 };
@@ -276,7 +276,7 @@ export function SolarDashboard() {
             <div className="hero-strip__copy">
               <div className="live-label"><span /> LIVE PLANT</div>
               <h2>{overview.site.name}</h2>
-              <p><MapPin size={14} /> {overview.site.location} · Updated {new Date(overview.generatedAt).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}</p>
+              <p><MapPin size={14} /> {overview.site.location} · Updated {new Date(overview.generatedAt).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Kolkata" })}</p>
             </div>
             <div className="weather-row">
               <div><ThermometerSun size={19} /><span><strong>{overview.weather.temperatureC}°</strong><small>Ambient</small></span></div>
