@@ -291,7 +291,8 @@ function buildInverters(plantPowerMw: number): InverterHealth[] {
         actualKw: round(expected * 0.88, 0),
         expectedKw: round(expected, 0),
         temperatureC: 67.8,
-        reason: "Temperature is elevated and output is 12% below its peer group.",
+        reason:
+          "Running hotter than normal and generating 12% less power than similar inverters.",
       };
     }
     return {

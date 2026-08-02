@@ -13,7 +13,8 @@ HTTP API in a responsive operations dashboard.
 - simulated SCADA values for a 5 MW reference plant
 - inverter health ranking and an explainable early-warning card
 - a standalone anomaly-evaluation endpoint
-- OpenAPI 3.1 discovery document
+- interactive Swagger and ReDoc API documentation
+- OpenAPI 3.1 discovery document with schemas and examples
 - live Open-Meteo weather with a deterministic fallback for resilient demos
 - Cloudflare Worker-compatible deployment through vinext
 
@@ -39,13 +40,20 @@ calculation without changing the public API.
 
 All endpoints are versioned under `/api/v1`.
 
+- **Live app:** [solar-predictor-ft87.onrender.com](https://solar-predictor-ft87.onrender.com)
+- **Swagger:** [interactive API endpoints](https://solar-predictor-ft87.onrender.com/docs)
+- **ReDoc:** [readable API reference](https://solar-predictor-ft87.onrender.com/redoc)
+- **OpenAPI:** [openapi.json](https://solar-predictor-ft87.onrender.com/openapi.json)
+- **Render:** [manage deployment](https://dashboard.render.com/web/srv-d9ncoou417fc73d3q1pg)
+
 | Method | Endpoint | Purpose |
 | --- | --- | --- |
 | `GET` | `/api/v1/health` | service readiness |
+| `GET` | `/api/v1/meta` | capabilities and documentation links |
 | `GET` | `/api/v1/sites/surya-one/overview` | complete dashboard payload |
 | `GET` | `/api/v1/sites/surya-one/forecasts?horizon=tomorrow` | one forecast horizon |
 | `POST` | `/api/v1/anomalies/evaluate` | score an inverter operating point |
-| `GET` | `/api/v1/openapi.json` | OpenAPI 3.1 document |
+| `GET` | `/openapi.json` | OpenAPI 3.1 document |
 
 Supported forecast horizons are `nowcast`, `tomorrow`, and `outlook`.
 
@@ -64,7 +72,7 @@ curl -X POST http://localhost:3000/api/v1/anomalies/evaluate \
 
 ## Local development
 
-Requires Node.js `>=22.13.0`.
+Requires Node.js `>=24.14.0 <25`.
 
 ```bash
 npm install

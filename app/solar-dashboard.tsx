@@ -36,9 +36,9 @@ import {
 import type { Horizon, SolarOverview } from "./lib/solar";
 
 const HORIZONS: Array<{ id: Horizon; label: string; hint: string }> = [
-  { id: "nowcast", label: "Next 30 min", hint: "5-minute nowcast" },
-  { id: "tomorrow", label: "Tomorrow", hint: "Hourly forecast" },
-  { id: "outlook", label: "15 days", hint: "Daily outlook" },
+  { id: "nowcast", label: "Next 30 min", hint: "Power updated every 5 minutes" },
+  { id: "tomorrow", label: "Tomorrow", hint: "Hour-by-hour power" },
+  { id: "outlook", label: "15 days", hint: "Daily energy estimate" },
 ];
 
 const EMPTY_OVERVIEW: SolarOverview = {
@@ -146,7 +146,7 @@ function ForecastTooltip({
         {isDaily ? `${data.energyMwh ?? 0} MWh` : `${data.powerMw ?? 0} MW`}
       </span>
       <small>
-        Range {isDaily ? data.lowerMwh ?? 0 : data.lowerMw ?? 0}–
+        Likely range {isDaily ? data.lowerMwh ?? 0 : data.lowerMw ?? 0}–
         {isDaily ? data.upperMwh ?? 0 : data.upperMw ?? 0} {isDaily ? "MWh" : "MW"}
       </small>
     </div>
@@ -219,7 +219,7 @@ export function SolarDashboard() {
       <aside className={`sidebar ${menuOpen ? "sidebar--open" : ""}`}>
         <div className="brand">
           <span className="brand__mark"><Sun size={19} /></span>
-          <span><strong>SOLARIS</strong><small>Grid intelligence</small></span>
+          <span><strong>SOLARIS</strong><small>Solar monitoring</small></span>
           <button className="mobile-close" onClick={() => setMenuOpen(false)} aria-label="Close navigation">
             <X size={18} />
           </button>
@@ -229,17 +229,17 @@ export function SolarDashboard() {
           <a className="nav-item nav-item--active" href="#overview"><LayoutDashboard size={18} />Overview</a>
           <a className="nav-item" href="#forecast"><Waves size={18} />Forecasts</a>
           <a className="nav-item" href="#health"><ShieldCheck size={18} />Inverter health<span className="nav-badge">1</span></a>
-          <a className="nav-item" href="#model"><Bot size={18} />Model registry</a>
-          <a className="nav-item" href="/api/v1/openapi.json" target="_blank" rel="noreferrer"><BookOpen size={18} />API specification<ArrowUpRight size={14} /></a>
+          <a className="nav-item" href="#model"><Bot size={18} />How predictions work</a>
+          <a className="nav-item" href="/docs" target="_blank" rel="noreferrer"><BookOpen size={18} />Developer API<ArrowUpRight size={14} /></a>
         </nav>
 
         <div className="sidebar__bottom">
           <div className="model-chip">
             <span className="pulse-dot" />
-            <div><small>Active model</small><strong>{overview.model.name}</strong></div>
+            <div><small>Prediction method</small><strong>Weather + plant model</strong></div>
             <Sparkles size={15} />
           </div>
-          <a className="nav-item" href="#settings"><Settings size={18} />Configuration</a>
+          <a className="nav-item" href="#settings"><Settings size={18} />Settings</a>
         </div>
       </aside>
 
@@ -249,8 +249,8 @@ export function SolarDashboard() {
         <header className="topbar">
           <button className="menu-button" onClick={() => setMenuOpen(true)} aria-label="Open navigation"><Menu size={20} /></button>
           <div>
-            <p className="eyebrow">SOLAR OPERATIONS / LIVE</p>
-            <h1>Generation intelligence</h1>
+            <p className="eyebrow">LIVE SOLAR MONITORING</p>
+            <h1>Solar power dashboard</h1>
           </div>
           <div className="topbar__actions">
             <div className="site-picker">
@@ -279,18 +279,18 @@ export function SolarDashboard() {
               <p><MapPin size={14} /> {overview.site.location} · Updated {new Date(overview.generatedAt).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Kolkata" })}</p>
             </div>
             <div className="weather-row">
-              <div><ThermometerSun size={19} /><span><strong>{overview.weather.temperatureC}°</strong><small>Ambient</small></span></div>
+              <div><ThermometerSun size={19} /><span><strong>{overview.weather.temperatureC}°</strong><small>Outside temperature</small></span></div>
               <div><CloudSun size={19} /><span><strong>{overview.weather.cloudCover}%</strong><small>{overview.weather.condition}</small></span></div>
               <div><Wind size={19} /><span><strong>{overview.weather.windSpeedKmh}</strong><small>km/h wind</small></span></div>
-              <div><Sun size={19} /><span><strong>{overview.weather.irradianceWm2}</strong><small>W/m² GHI</small></span></div>
+              <div><Sun size={19} /><span><strong>{overview.weather.irradianceWm2}</strong><small>W/m² sunlight</small></span></div>
             </div>
           </section>
 
           <section className="metrics-grid" aria-label="Live plant metrics">
-            <MetricCard label="AC power" value={formatNumber(overview.telemetry.acPowerMw, 2)} unit="MW" detail={`${formatNumber((overview.telemetry.acPowerMw / overview.site.capacityMw) * 100)}% of installed capacity`} icon={<Zap size={18} />} accent />
-            <MetricCard label="Energy today" value={formatNumber(overview.telemetry.energyTodayMwh)} unit="MWh" detail="Metered estimate since sunrise" icon={<Activity size={18} />} />
-            <MetricCard label="DC array" value={formatNumber(overview.telemetry.dcCurrentA, 0)} unit="A" detail={`${formatNumber(overview.telemetry.dcVoltageV, 0)} V · ${formatNumber(overview.telemetry.dcPowerMw, 2)} MW`} icon={<Gauge size={18} />} />
-            <MetricCard label="Tomorrow P50" value={formatNumber(tomorrowEnergy)} unit="MWh" detail={`${overview.outlook[1]?.condition ?? "Forecast preparing"} · probabilistic`} icon={<CloudSun size={18} />} />
+            <MetricCard label="Power right now" value={formatNumber(overview.telemetry.acPowerMw, 2)} unit="MW" detail={`${formatNumber((overview.telemetry.acPowerMw / overview.site.capacityMw) * 100)}% of the plant's maximum output`} icon={<Zap size={18} />} accent />
+            <MetricCard label="Energy made today" value={formatNumber(overview.telemetry.energyTodayMwh)} unit="MWh" detail="Estimated total since sunrise" icon={<Activity size={18} />} />
+            <MetricCard label="Solar panel output" value={formatNumber(overview.telemetry.dcPowerMw, 2)} unit="MW" detail={`${formatNumber(overview.telemetry.dcCurrentA, 0)} A · ${formatNumber(overview.telemetry.dcVoltageV, 0)} V`} icon={<Gauge size={18} />} />
+            <MetricCard label="Expected tomorrow" value={formatNumber(tomorrowEnergy)} unit="MWh" detail={`${overview.outlook[1]?.condition ?? "Forecast preparing"} · most likely estimate`} icon={<CloudSun size={18} />} />
           </section>
 
           <div className="content-grid">
@@ -299,7 +299,7 @@ export function SolarDashboard() {
                 <div>
                   <p className="eyebrow">POWER FORECAST</p>
                   <h3>{activeHorizon.label}</h3>
-                  <span>{activeHorizon.hint} · P10/P50/P90 range</span>
+                  <span>{activeHorizon.hint} · includes a likely lower and upper range</span>
                 </div>
                 <div className="horizon-tabs" role="tablist" aria-label="Forecast horizon">
                   {HORIZONS.map((item) => (
@@ -332,9 +332,9 @@ export function SolarDashboard() {
               </div>
 
               <div className="forecast-foot">
-                <span><i className="legend-line" /> P50 expected</span>
-                <span><i className="legend-range" /> P10–P90 range</span>
-                <span className="source-note">Weather: {overview.source === "live-weather" ? "Open-Meteo live feed" : "resilient demo fallback"}</span>
+                <span><i className="legend-line" /> Most likely output</span>
+                <span><i className="legend-range" /> Likely range</span>
+                <span className="source-note">Weather data: {overview.source === "live-weather" ? "live" : "demo backup"}</span>
               </div>
             </section>
 
@@ -344,23 +344,22 @@ export function SolarDashboard() {
                   <p className="eyebrow">INVERTER HEALTH</p>
                   <h3>{overview.inverters.length - watchInverters.length}/{overview.inverters.length} healthy</h3>
                 </div>
-                <span className="status-pill status-pill--watch"><AlertTriangle size={13} /> {watchInverters.length} watch</span>
+                <span className="status-pill status-pill--watch"><AlertTriangle size={13} /> {watchInverters.length} needs attention</span>
               </div>
 
               {watchInverters[0] && (
                 <article className="anomaly-card">
                   <div className="anomaly-card__head">
                     <span className="inverter-icon"><Boxes size={19} /></span>
-                    <div><strong>{watchInverters[0].id}</strong><small>Early warning</small></div>
-                    <span className="risk-score">{watchInverters[0].score}</span>
+                    <div><strong>{watchInverters[0].id}</strong><small>Check recommended</small></div>
+                    <span className="risk-score" title="Warning score out of 100" aria-label={`Warning score ${watchInverters[0].score} out of 100`}>{watchInverters[0].score}</span>
                   </div>
                   <p>{watchInverters[0].reason}</p>
                   <div className="anomaly-metrics">
-                    <span><small>Actual</small><strong>{watchInverters[0].actualKw} kW</strong></span>
-                    <span><small>Expected</small><strong>{watchInverters[0].expectedKw} kW</strong></span>
+                    <span><small>Current output</small><strong>{watchInverters[0].actualKw} kW</strong></span>
+                    <span><small>Normal output</small><strong>{watchInverters[0].expectedKw} kW</strong></span>
                     <span><small>Temperature</small><strong>{watchInverters[0].temperatureC}°C</strong></span>
                   </div>
-                  <button>Review signal <ArrowUpRight size={14} /></button>
                 </article>
               )}
 
@@ -380,20 +379,20 @@ export function SolarDashboard() {
           <section className="bottom-grid" id="model">
             <article className="mini-panel">
               <span className="mini-panel__icon"><ShieldCheck size={19} /></span>
-              <div><small>Plant availability</small><strong>{overview.telemetry.availability}%</strong><p>SCADA and inverter uptime</p></div>
+              <div><small>Plant online time</small><strong>{overview.telemetry.availability}%</strong><p>Time the plant and monitoring system were available</p></div>
             </article>
             <article className="mini-panel">
               <span className="mini-panel__icon"><Gauge size={19} /></span>
-              <div><small>Performance ratio</small><strong>{overview.telemetry.performanceRatio}%</strong><p>Weather-normalized output</p></div>
+              <div><small>Plant efficiency</small><strong>{overview.telemetry.performanceRatio}%</strong><p>Actual output compared with expected output</p></div>
             </article>
             <article className="mini-panel">
               <span className="mini-panel__icon"><Bot size={19} /></span>
-              <div><small>Validation nMAE</small><strong>{overview.model.validationNmae}%</strong><p>Rolling daylight backtest</p></div>
+              <div><small>Average prediction error</small><strong>{overview.model.validationNmae}%</strong><p>Lower is better · measured during daylight</p></div>
             </article>
             <article className="mini-panel mini-panel--api">
               <span className="mini-panel__icon"><BookOpen size={19} /></span>
-              <div><small>Developer API</small><strong>v1 · Online</strong><p>OpenAPI 3.1 specification</p></div>
-              <a href="/api/v1/openapi.json" target="_blank" rel="noreferrer" aria-label="Open API specification"><ArrowUpRight size={17} /></a>
+              <div><small>Developer API</small><strong>v1 · Online</strong><p>Interactive documentation and examples</p></div>
+              <a href="/docs" target="_blank" rel="noreferrer" aria-label="Open interactive API documentation"><ArrowUpRight size={17} /></a>
             </article>
           </section>
         </div>

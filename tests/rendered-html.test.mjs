@@ -22,19 +22,41 @@ test("renders the Solaris operations dashboard", async () => {
   assert.equal(response.status, 200);
   const html = await response.text();
   assert.match(html, /Solaris Grid/);
-  assert.match(html, /Generation intelligence/);
+  assert.match(html, /Solar power dashboard/);
   assert.match(html, /Surya One/);
+  assert.match(html, /Power right now/);
+  assert.doesNotMatch(html, /P10\/P50\/P90|Validation nMAE|W\/m² GHI/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/i);
 });
 
-test("serves versioned health and OpenAPI endpoints", async () => {
+test("serves health, metadata, OpenAPI, Swagger, and ReDoc endpoints", async () => {
   const health = await request("/api/v1/health");
   assert.equal(health.status, 200);
   assert.equal((await health.json()).service, "solaris-grid-api");
 
-  const openapi = await request("/api/v1/openapi.json");
+  const meta = await request("/api/v1/meta");
+  assert.equal(meta.status, 200);
+  const metadata = await meta.json();
+  assert.equal(metadata.capabilities.defaultSiteId, "surya-one");
+  assert.match(metadata.documentation.swagger, /\/docs$/);
+
+  const openapi = await request("/openapi.json");
   assert.equal(openapi.status, 200);
-  assert.equal((await openapi.json()).openapi, "3.1.0");
+  const specification = await openapi.json();
+  assert.equal(specification.openapi, "3.1.0");
+  assert.ok(specification.paths["/meta"]);
+  assert.ok(specification.components.schemas.AnomalyRequest);
+
+  const versionedOpenApi = await request("/api/v1/openapi.json");
+  assert.equal(versionedOpenApi.status, 200);
+
+  const swagger = await request("/docs");
+  assert.equal(swagger.status, 200);
+  assert.match(await swagger.text(), /SwaggerUIBundle/);
+
+  const redoc = await request("/redoc");
+  assert.equal(redoc.status, 200);
+  assert.match(await redoc.text(), /redoc\.standalone\.js/);
 });
 
 test("validates and scores an inverter operating point", async () => {
