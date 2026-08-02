@@ -1,8 +1,7 @@
-import { getOpenApiDocument } from "../../../lib/openapi";
+import { getOpenApiDocument, getRequestOrigin } from "../../../lib/openapi";
 
 export async function GET(request: Request) {
-  const origin = new URL(request.url).origin;
-  return Response.json(getOpenApiDocument(origin), {
+  return Response.json(getOpenApiDocument(getRequestOrigin(request)), {
     headers: { "cache-control": "public, max-age=300" },
   });
 }

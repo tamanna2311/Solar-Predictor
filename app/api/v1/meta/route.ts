@@ -1,5 +1,7 @@
+import { getRequestOrigin } from "../../../lib/openapi";
+
 export async function GET(request: Request) {
-  const origin = new URL(request.url).origin;
+  const origin = getRequestOrigin(request);
 
   return Response.json(
     {

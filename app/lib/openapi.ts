@@ -1,3 +1,15 @@
+export function getRequestOrigin(request: Request) {
+  const requestUrl = new URL(request.url);
+  const forwardedHost = request.headers.get("x-forwarded-host");
+  const host = forwardedHost?.split(",")[0]?.trim() || request.headers.get("host");
+  const forwardedProtocol = request.headers.get("x-forwarded-proto");
+  const protocol =
+    forwardedProtocol?.split(",")[0]?.trim() ||
+    (host?.endsWith(".onrender.com") ? "https" : requestUrl.protocol.slice(0, -1));
+
+  return host ? `${protocol}://${host}` : requestUrl.origin;
+}
+
 export function getOpenApiDocument(origin: string) {
   const apiBaseUrl = `${origin}/api/v1`;
 

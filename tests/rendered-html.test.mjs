@@ -40,6 +40,23 @@ test("serves health, metadata, OpenAPI, Swagger, and ReDoc endpoints", async () 
   assert.equal(metadata.capabilities.defaultSiteId, "surya-one");
   assert.match(metadata.documentation.swagger, /\/docs$/);
 
+  const proxiedMeta = await worker.fetch(
+    new Request("http://internal-render-host/api/v1/meta", {
+      headers: {
+        host: "solar-predictor-ft87.onrender.com",
+        "x-forwarded-host": "solar-predictor-ft87.onrender.com",
+        "x-forwarded-proto": "https",
+      },
+    }),
+    { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } },
+    { waitUntil() {}, passThroughOnException() {} },
+  );
+  assert.equal(proxiedMeta.status, 200);
+  assert.equal(
+    (await proxiedMeta.json()).documentation.swagger,
+    "https://solar-predictor-ft87.onrender.com/docs",
+  );
+
   const openapi = await request("/openapi.json");
   assert.equal(openapi.status, 200);
   const specification = await openapi.json();
