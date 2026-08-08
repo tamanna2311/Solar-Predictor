@@ -16,7 +16,7 @@ export async function GET(request: Request) {
         openapi: `${origin}/openapi.json`,
       },
       capabilities: {
-        defaultSiteId: "surya-one",
+        defaultSiteId: "kiran-solar",
         forecastHorizons: ["nowcast", "tomorrow", "outlook"],
         liveWeather: true,
         inverterEarlyWarning: true,

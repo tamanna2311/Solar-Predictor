@@ -36,7 +36,15 @@ yarn-error.log*
 
 # typescript
 next-env.d.ts
+*.tsbuildinfo
 /dist/
 /.wrangler/
 /outputs/
 /work/
+/.venv/
+/.wheels/
+__pycache__/
+*.py[cod]
+/ml/artifacts/
+/data/raw/
+/data/processed/

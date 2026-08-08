@@ -42,6 +42,7 @@ export type SolarOverview = {
     latitude: number;
     longitude: number;
     capacityMw: number;
+    dcCapacityMwp: number;
     inverterCount: number;
   };
   telemetry: {
@@ -89,13 +90,14 @@ type WeatherPayload = {
 };
 
 const SITE = {
-  id: "surya-one",
-  name: "Surya One",
-  location: "Jaisalmer, Rajasthan",
-  latitude: 26.9157,
-  longitude: 70.9083,
-  capacityMw: 5,
-  inverterCount: 12,
+  id: "kiran-solar",
+  name: "Kiran Solar Pvt Ltd",
+  location: "Gajja, Phalodi, Rajasthan",
+  latitude: 27.0717943,
+  longitude: 72.371192,
+  capacityMw: 2.52,
+  dcCapacityMwp: 3.02,
+  inverterCount: 8,
 };
 
 const round = (value: number, digits = 2) =>
@@ -115,8 +117,8 @@ function powerFromWeather(irradiance: number, temperatureC: number) {
   const poa = Math.max(0, irradiance) * 1.06;
   const cellTemperature = temperatureC + poa * 0.025;
   const temperatureFactor = 1 - 0.0038 * (cellTemperature - 25);
-  const dc = SITE.capacityMw * (poa / 1000) * temperatureFactor * 0.92;
-  const ac = Math.min(4.6, Math.max(0, dc * 0.975));
+  const dc = SITE.dcCapacityMwp * (poa / 1000) * temperatureFactor * 0.86;
+  const ac = Math.min(SITE.capacityMw, Math.max(0, dc * 0.96));
   return { dc: round(dc), ac: round(ac) };
 }
 
@@ -209,7 +211,7 @@ function buildHourly(payload: WeatherPayload): ForecastPoint[] {
       }),
       powerMw: ac,
       lowerMw: round(ac * (1 - uncertainty)),
-      upperMw: round(Math.min(4.6, ac * (1 + uncertainty))),
+      upperMw: round(Math.min(SITE.capacityMw, ac * (1 + uncertainty))),
       irradianceWm2: round(irradianceWm2, 0),
       cloudCover: round(cloudCover, 0),
       temperatureC: round(temperatureC, 1),
@@ -225,7 +227,7 @@ function buildNowcast(currentPower: number, firstHourlyPower: number) {
     const predicted = clamp(
       currentPower + (firstHourlyPower - currentPower) * progress + Math.sin(index * 0.8) * 0.025,
       0,
-      4.6,
+      SITE.capacityMw,
     );
     const uncertainty = 0.035 + index * 0.009;
     return {
@@ -233,7 +235,7 @@ function buildNowcast(currentPower: number, firstHourlyPower: number) {
       label: index === 0 ? "Now" : `+${index * 5}m`,
       powerMw: round(predicted),
       lowerMw: round(Math.max(0, predicted * (1 - uncertainty))),
-      upperMw: round(Math.min(4.6, predicted * (1 + uncertainty))),
+      upperMw: round(Math.min(SITE.capacityMw, predicted * (1 + uncertainty))),
       irradianceWm2: 0,
       cloudCover: 0,
       temperatureC: 0,
@@ -352,10 +354,10 @@ export async function getSolarOverview(): Promise<SolarOverview> {
     outlook: buildOutlook(hourly),
     inverters: buildInverters(power.ac),
     model: {
-      name: "Hybrid PV v1",
-      version: "1.0.0-demo",
-      lastTrainedAt: "2026-07-26T03:30:00.000Z",
-      validationNmae: 7.8,
+      name: "Kiran pvlib + LightGBM proof of concept",
+      version: "2026-07-poc",
+      lastTrainedAt: "2026-08-07T00:00:00.000Z",
+      validationNmae: 11.74,
     },
   };
 }

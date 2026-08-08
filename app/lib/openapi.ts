@@ -177,8 +177,8 @@ export function getOpenApiDocument(origin: string) {
           name: "siteId",
           in: "path",
           required: true,
-          description: "Solar-site identifier. The demo site is surya-one.",
-          schema: { type: "string", example: "surya-one" },
+          description: "Solar-site identifier. The configured site is kiran-solar.",
+          schema: { type: "string", example: "kiran-solar" },
         },
       },
       responses: {
@@ -226,7 +226,7 @@ export function getOpenApiDocument(origin: string) {
             capabilities: {
               type: "object",
               properties: {
-                defaultSiteId: { type: "string", example: "surya-one" },
+                defaultSiteId: { type: "string", example: "kiran-solar" },
                 forecastHorizons: {
                   type: "array",
                   items: { type: "string", enum: ["nowcast", "tomorrow", "outlook"] },
@@ -270,7 +270,7 @@ export function getOpenApiDocument(origin: string) {
           type: "object",
           required: ["siteId", "horizon", "generatedAt", "source", "model", "data"],
           properties: {
-            siteId: { type: "string", example: "surya-one" },
+            siteId: { type: "string", example: "kiran-solar" },
             horizon: { type: "string", enum: ["nowcast", "tomorrow", "outlook"] },
             generatedAt: { type: "string", format: "date-time" },
             source: { type: "string", enum: ["live-weather", "demo-fallback"] },

@@ -45,13 +45,14 @@ const EMPTY_OVERVIEW: SolarOverview = {
   generatedAt: "2026-08-02T00:00:00.000Z",
   source: "demo-fallback",
   site: {
-    id: "surya-one",
-    name: "Surya One",
-    location: "Jaisalmer, Rajasthan",
-    latitude: 26.9157,
-    longitude: 70.9083,
-    capacityMw: 5,
-    inverterCount: 12,
+    id: "kiran-solar",
+    name: "Kiran Solar Pvt Ltd",
+    location: "Gajja, Phalodi, Rajasthan",
+    latitude: 27.0717943,
+    longitude: 72.371192,
+    capacityMw: 2.52,
+    dcCapacityMwp: 3.02,
+    inverterCount: 8,
   },
   telemetry: {
     acPowerMw: 0,
@@ -74,9 +75,9 @@ const EMPTY_OVERVIEW: SolarOverview = {
   outlook: [],
   inverters: [],
   model: {
-    name: "Hybrid PV v1",
-    version: "1.0.0-demo",
-    lastTrainedAt: "2026-07-26T03:30:00.000Z",
+    name: "Kiran pvlib + LightGBM proof of concept",
+    version: "2026-07-poc",
+    lastTrainedAt: "2026-08-07T00:00:00.000Z",
     validationNmae: 0,
   },
 };
@@ -118,6 +119,7 @@ function MetricCard({
 }
 
 type TooltipDatum = {
+  label?: string;
   powerMw?: number;
   lowerMw?: number;
   upperMw?: number;
@@ -164,7 +166,7 @@ export function SolarDashboard() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch("/api/v1/sites/surya-one/overview", {
+      const response = await fetch("/api/v1/sites/kiran-solar/overview", {
         cache: "no-store",
       });
       if (!response.ok) throw new Error("The plant feed could not be loaded.");
@@ -180,7 +182,7 @@ export function SolarDashboard() {
     let active = true;
     async function loadInitialOverview() {
       try {
-        const response = await fetch("/api/v1/sites/surya-one/overview", {
+        const response = await fetch("/api/v1/sites/kiran-solar/overview", {
           cache: "no-store",
         });
         if (!response.ok) throw new Error("The plant feed could not be loaded.");
@@ -202,9 +204,19 @@ export function SolarDashboard() {
     };
   }, []);
 
-  const chartData = useMemo(() => {
-    if (horizon === "outlook") return overview.outlook;
-    return overview[horizon];
+  const chartData = useMemo<Array<TooltipDatum & { label: string; chartValue: number; chartUpper: number }>>(() => {
+    if (horizon === "outlook") {
+      return overview.outlook.map((point) => ({
+        ...point,
+        chartValue: point.energyMwh,
+        chartUpper: point.upperMwh,
+      }));
+    }
+    return overview[horizon].map((point) => ({
+      ...point,
+      chartValue: point.powerMw,
+      chartUpper: point.upperMw,
+    }));
   }, [horizon, overview]);
 
   const activeHorizon = HORIZONS.find((item) => item.id === horizon)!;
@@ -322,8 +334,8 @@ export function SolarDashboard() {
                       <XAxis dataKey="label" tick={{ fill: "#789083", fontSize: 11 }} axisLine={false} tickLine={false} minTickGap={24} />
                       <YAxis tick={{ fill: "#789083", fontSize: 11 }} axisLine={false} tickLine={false} unit={horizon === "outlook" ? "" : ""} />
                       <Tooltip content={<ForecastTooltip />} />
-                      <Area type="monotone" dataKey={horizon === "outlook" ? "upperMwh" : "upperMw"} stroke="none" fill="#25ef91" fillOpacity={0.07} />
-                      <Area type="monotone" dataKey={horizon === "outlook" ? "energyMwh" : "powerMw"} stroke="#28f39a" strokeWidth={2.2} fill="url(#powerFill)" activeDot={{ r: 5, fill: "#d8ffe9", stroke: "#28f39a", strokeWidth: 3 }} />
+                      <Area type="monotone" dataKey="chartUpper" stroke="none" fill="#25ef91" fillOpacity={0.07} />
+                      <Area type="monotone" dataKey="chartValue" stroke="#28f39a" strokeWidth={2.2} fill="url(#powerFill)" activeDot={{ r: 5, fill: "#d8ffe9", stroke: "#28f39a", strokeWidth: 3 }} />
                     </AreaChart>
                   </ResponsiveContainer>
                 ) : (

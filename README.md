@@ -10,7 +10,7 @@ HTTP API in a responsive operations dashboard.
 - 5-minute solar nowcast for the next 30 minutes
 - hourly day-ahead forecast with P10/P50/P90-style bounds
 - 15-day daily generation outlook
-- simulated SCADA values for a 5 MW reference plant
+- Kiran Solar site configuration (2.52 MW AC / 3.02 MWp DC, eight inverters)
 - inverter health ranking and an explainable early-warning card
 - a standalone anomaly-evaluation endpoint
 - interactive Swagger and ReDoc API documentation
@@ -50,8 +50,8 @@ All endpoints are versioned under `/api/v1`.
 | --- | --- | --- |
 | `GET` | `/api/v1/health` | service readiness |
 | `GET` | `/api/v1/meta` | capabilities and documentation links |
-| `GET` | `/api/v1/sites/surya-one/overview` | complete dashboard payload |
-| `GET` | `/api/v1/sites/surya-one/forecasts?horizon=tomorrow` | one forecast horizon |
+| `GET` | `/api/v1/sites/kiran-solar/overview` | complete dashboard payload |
+| `GET` | `/api/v1/sites/kiran-solar/forecasts?horizon=tomorrow` | one forecast horizon |
 | `POST` | `/api/v1/anomalies/evaluate` | score an inverter operating point |
 | `GET` | `/openapi.json` | OpenAPI 3.1 document |
 
@@ -100,6 +100,36 @@ For a real plant, replace the reference-site adapter with:
 5. maintenance work orders and fault labels for alert validation;
 6. model monitoring using daylight nMAE, bias, interval coverage, false alerts,
    and warning lead time.
+
+## Company-data proof of concept
+
+The `ml/` directory implements the requested company-data method rather than
+embedding confidential exports in the web bundle:
+
+```text
+SolarLive inverter + plant exports ─┐
+Satellite weather export ───────────┼─> 15-minute alignment + quality flags
+Plant configuration ────────────────┘                 │
+                                                       ├─> 15-minute LightGBM
+                                                       └─> pvlib ─> residual LightGBM
+```
+
+Raw exports, aligned tables, and model binaries are Git-ignored. See
+`ml/README.md` for the training command and artifact contract.
+
+The first chronological July holdout produced the following proof-of-concept
+scores. These are pipeline-validation results, not production claims:
+
+| Model | MAE | nMAE |
+| --- | ---: | ---: |
+| Persistence | 149.38 kW | 5.93% |
+| pvlib baseline | 229.46 kW | 9.11% |
+| 15-minute LightGBM | 182.21 kW | 7.23% |
+| pvlib + residual LightGBM | 295.85 kW | 11.74% |
+
+Persistence currently wins. The hybrid model needs more seasons, confirmed
+units/array geometry, and archived issue-time weather forecasts before it can
+be promoted to the live runtime.
 
 ## Research and data references
 
