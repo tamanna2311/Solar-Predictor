@@ -5,7 +5,7 @@ export async function GET(
   context: { params: Promise<{ siteId: string }> },
 ) {
   const { siteId } = await context.params;
-  if (siteId !== "surya-one") {
+  if (siteId !== "kiran-solar") {
     return Response.json(
       {
         error: {

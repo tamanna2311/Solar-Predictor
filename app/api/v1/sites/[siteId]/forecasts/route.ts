@@ -10,7 +10,7 @@ export async function GET(
   const horizon = (new URL(request.url).searchParams.get("horizon") ??
     "tomorrow") as Horizon;
 
-  if (siteId !== "surya-one") {
+  if (siteId !== "kiran-solar") {
     return Response.json(
       { error: { code: "SITE_NOT_FOUND", message: "Unknown solar site." } },
       { status: 404 },

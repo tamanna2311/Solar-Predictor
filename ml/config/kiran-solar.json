@@ -1,0 +1,23 @@
+{
+  "site_id": "kiran-solar",
+  "site_name": "Kiran Solar Pvt Ltd",
+  "location": "Gajja, Phalodi, Rajasthan",
+  "latitude": 27.0717943,
+  "longitude": 72.371192,
+  "timezone": "Asia/Kolkata",
+  "ac_capacity_kw": 2520,
+  "dc_capacity_kwp": 3020,
+  "inverter_count": 8,
+  "inverter_ac_unit_override": "kW",
+  "inverter_dc_unit_override": "W",
+  "surface_tilt_degrees": 27.0,
+  "surface_azimuth_degrees": 180.0,
+  "system_loss_fraction": 0.14,
+  "assumptions": [
+    "Surface tilt is assumed to equal site latitude until the as-built value is supplied.",
+    "Surface azimuth is assumed due south until the as-built value is supplied.",
+    "The exported TOTAL_ACTIVE_POWER values are treated as kW despite the source unit label W.",
+    "The exported TOTA_DC_POWER values are treated as W and converted to kW.",
+    "Satellite shortwave radiation is treated as observed GHI, not an archived issue-time forecast."
+  ]
+}
